@@ -1,0 +1,42 @@
+http://blog.csdn.net/knowledgeaaa/article/details/20616081
+ 
+ 
+mvn package -Pdist,native -DskipTests -Dtar -e -X
+mvn package -Pnative -DskipTests
+ 
+http://mail-archives.apache.org/mod_mbox/hadoop-hdfs-user/201304.mbox/%3CCAG1CohTvm1D81Fo_Azr+AOAaG=_qz6U0jVnAdct-2T2Fugd=Yg@mail.gmail.com%3E
+
+为hadoop 2.2.0中添加fuse模块的支持步骤：
+1. 进入目录HADOOP_SOURCE_DIR，执行mvn compile -Pnative，编译生成fuse_dfs可执行文件。
+    (HADOOP_SOURCE_DIR/hadoop-hdfs-project/hadoop-hdfs/target/native/main/native/fuse-dfs/fuse_dfs)
+2. 在本地创建mount目录，mkdir -p /mnt/dfs/ 。
+3. 执行挂载 ./fuse_dfs dfs://172.16.19.22:53310 /mnt/dfs或者通过fuse_dfs_wrapper.sh执行挂载也是一样的。
+    (HADOOP_SOURCE_DIR/hadoop-hdfs-project/hadoop-hdfs/src/main/native/fuse-dfs/fuse_dfs_wrapper.sh)
+4. 如果需要卸载挂载点，执行umount /mnt/dfs即可。
+
+至此，通过hadoop的fuse支持模块，实现将hadoop目录挂载到本地完成。
+
+export PATH=./:$PATH
+export JAVA_HOME=/usr/java/jdk1.6.0_31/
+export OS_ARCH=amd64
+
+#for f in ls $HADOOP_HOME/lib/*.jar $HADOOP_HOME/*.jar ; do
+#export  CLASSPATH=$CLASSPATH:$f
+#done
+HDCP=`hadoop classpath`
+export CLASSPATH=$CLASSPATH:$HDCP
+
+echo $CLASSPATH
+
+
+if [ "$OS_ARCH" = "" ]; then
+export OS_ARCH=amd64
+fi
+
+if [ "$JAVA_HOME" = "" ]; then
+export  JAVA_HOME=/usr/local/java
+fi
+
+#if [ "$LD_LIBRARY_PATH" = "" ]; then
+export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/$OS_ARCH/server:/usr/local/lib
+#fi
